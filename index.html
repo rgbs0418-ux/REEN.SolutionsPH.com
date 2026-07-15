@@ -134,6 +134,157 @@
         <div class="max-w-4xl mx-auto px-6 text-center">
             <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4">Plan Your System</h2>
             <p class="text-slate-400 font-light mb-12">Use our interactive tool at the top of the page to customize your target size and see what solar can save you today.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar PV System Estimator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen py-10 px-4">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <!-- Header -->
+        <div class="bg-gradient-to-r top-0 from-amber-500 to-orange-600 p-6 text-white text-center">
+            <h1 class="text-3xl font-extrabold tracking-tight">☀️ Solar PV System Estimator</h1>
+            <p class="mt-2 text-amber-100 text-sm md:text-base">Calculate your recommended system capacity, solar panels needed, and estimated cost.</p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+            
+            <!-- Inputs Panel -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-bold text-slate-700 border-b pb-2">1. Your Parameters</h2>
+                
+                <!-- Monthly Consumption -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-2" for="monthly-kwh">
+                        Monthly Energy Usage (kWh)
+                    </label>
+                    <input type="number" id="monthly-kwh" value="600" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., 600">
+                    <p class="text-xs text-slate-400 mt-1">Found on your electricity utility bill.</p>
+                </div>
+
+                <!-- Peak Sun Hours -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-2" for="sun-hours">
+                        Peak Sun Hours (Hours/Day)
+                    </label>
+                    <input type="number" id="sun-hours" value="4.5" step="0.1" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., 4.5">
+                    <p class="text-xs text-slate-400 mt-1">The average amount of direct, usable daily sunlight in your region.</p>
+                </div>
+
+                <!-- Panel Wattage -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-2" for="panel-watts">
+                        Solar Panel Rating (Watts)
+                    </label>
+                    <select id="panel-watts" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="350">350 W (Standard)</option>
+                        <option value="400" selected>400 W (High Efficiency)</option>
+                        <option value="450">450 W (Premium)</option>
+                    </select>
+                </div>
+
+                <!-- Estimate Cost per Watt -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-2" for="cost-per-watt">
+                        Estimated Cost ($ per Watt)
+                    </label>
+                    <input type="number" id="cost-per-watt" value="2.80" step="0.1" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g., 2.80">
+                    <p class="text-xs text-slate-400 mt-1">Includes panels, inverter, installation, and permits (typically $2.50 to $3.50).</p>
+                </div>
+
+                <button onclick="calculateSolarEstimate()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:from-amber-600 hover:to-orange-600 transition duration-150">
+                    Calculate Estimate
+                </button>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-700 border-b pb-2 mb-6">2. Your Solar Estimate</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Recommended System Size -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase block">Recommended System Size</span>
+                            <span id="system-size" class="text-3xl font-extrabold text-slate-800">0.00 kW</span>
+                        </div>
+
+                        <!-- Panel Count -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase block">Estimated Panels Needed</span>
+                            <span id="panel-count" class="text-3xl font-extrabold text-amber-600">0 Panels</span>
+                            <span id="panel-details" class="text-xs text-slate-400 block mt-1"></span>
+                        </div>
+
+                        <!-- Est. Total Price -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-xs font-bold tracking-wider text-slate-400 uppercase block">Approx. Turnkey Cost</span>
+                            <span id="total-cost" class="text-3xl font-extrabold text-emerald-600">$0.00</span>
+                            <p class="text-xs text-slate-400 mt-1">Before tax credits, local solar incentives, or rebates.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formula Context Quote -->
+                <div class="mt-8 text-xs text-slate-500 border-t pt-4">
+                    <strong>Under the hood:</strong> Daily kWh needs are calculated using a <strong>0.80 derate system loss factor</strong> to account for real-world realities like wiring resistance, temperature fluctuations, and inverter efficiency.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Sizing Logic Script -->
+    <script>
+        function calculateSolarEstimate() {
+            // Fetch inputs
+            const monthlyKwh = parseFloat(document.getElementById('monthly-kwh').value) || 0;
+            const sunHours = parseFloat(document.getElementById('sun-hours').value) || 0;
+            const panelWatts = parseFloat(document.getElementById('panel-watts').value) || 0;
+            const costPerWatt = parseFloat(document.getElementById('cost-per-watt').value) || 0;
+
+            if (monthlyKwh <= 0 || sunHours <= 0) {
+                alert("Please enter valid parameters greater than 0.");
+                return;
+            }
+
+            // 1. Calculate average daily energy needed (kWh)
+            const dailyKwhNeeded = monthlyKwh / 30;
+
+            // 2. Adjust for a system efficiency derate factor (typically 80%)
+            const derateFactor = 0.8;
+            const rawDailyTarget = dailyKwhNeeded / derateFactor;
+
+            // 3. Calculate necessary continuous Solar system size (kW)
+            const systemSizeKw = rawDailyTarget / sunHours;
+
+            // 4. Calculate amount of panels needed (and round up to a whole panel)
+            const panelCount = Math.ceil((systemSizeKw * 1000) / panelWatts);
+
+            // 5. Re-calculate actual installed size based on whole panel count
+            const actualSystemSizeKw = (panelCount * panelWatts) / 1000;
+
+            // 6. Calculate total turnaround cost
+            const totalCost = actualSystemSizeKw * 1000 * costPerWatt;
+
+            // Update DOM Elements
+            document.getElementById('system-size').innerText = `${actualSystemSizeKw.toFixed(2)} kW`;
+            document.getElementById('panel-count').innerText = `${panelCount} Panels`;
+            document.getElementById('panel-details').innerText = `Using ${panelCount} x ${panelWatts}W modules`;
+            document.getElementById('total-cost').innerText = `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        // Initialize on page load
+        window.onload = calculateSolarEstimate;
+    </script>
+</body>
+</html>
         </div>
     </section>
 
